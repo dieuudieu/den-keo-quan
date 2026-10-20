@@ -1,0 +1,365 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài tập 23 - Đèn kéo quân JavaScript</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: radial-gradient(
+                ellipse at center,
+                #28364c 0%,
+                #111827 70%
+            );
+            font-family: Arial, sans-serif;
+            color: #fff;
+            text-align: center;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            color: #ffd78c;
+            margin: 35px 12px 10px;
+            font-size: clamp(25px, 5vw, 38px);
+        }
+
+        p {
+            color: #d6dce7;
+        }
+
+        /* Khu vực đèn kéo quân */
+        .scene {
+            height: 410px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1000px;
+        }
+
+        .lantern {
+            position: relative;
+            width: 180px;
+            height: 235px;
+            transform-style: preserve-3d;
+            animation: spin 15s linear infinite;
+        }
+
+        /* Các mặt của đèn */
+        .face {
+            position: absolute;
+            inset: 0;
+            border: 4px solid #efbd63;
+            border-radius: 5px;
+            background: linear-gradient(
+                140deg,
+                #354966,
+                #192438
+            );
+            box-shadow: 0 0 15px #e6b86155;
+            backface-visibility: visible;
+            overflow: hidden;
+        }
+
+        .face img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .face:nth-child(1) {
+            transform: rotateY(0deg) translateZ(156px);
+        }
+
+        .face:nth-child(2) {
+            transform: rotateY(60deg) translateZ(156px);
+        }
+
+        .face:nth-child(3) {
+            transform: rotateY(120deg) translateZ(156px);
+        }
+
+        .face:nth-child(4) {
+            transform: rotateY(180deg) translateZ(156px);
+        }
+
+        .face:nth-child(5) {
+            transform: rotateY(240deg) translateZ(156px);
+        }
+
+        .face:nth-child(6) {
+            transform: rotateY(300deg) translateZ(156px);
+        }
+
+        /* Hiệu ứng quay */
+        @keyframes spin {
+            to {
+                transform: rotateY(360deg);
+            }
+        }
+
+        /* Các nút điều khiển */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 0 15px 20px;
+        }
+
+        button,
+        .upload {
+            background: #f0be6d;
+            color: #1d2431;
+            border: 0;
+            border-radius: 9px;
+            padding: 11px 17px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:hover,
+        .upload:hover {
+            background: #ffe0a5;
+        }
+
+        .upload input {
+            display: none;
+        }
+
+        /* Phần ghi chú */
+        .note {
+            font-size: 13px;
+            max-width: 600px;
+            margin: 0 auto 35px;
+            line-height: 1.7;
+            padding: 0 18px;
+            color: #c9d2df;
+        }
+
+        /* Giao diện điện thoại */
+        @media (max-width: 500px) {
+            .scene {
+                height: 340px;
+                perspective: 900px;
+            }
+
+            .lantern {
+                transform-origin: center center;
+                zoom: .78;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1> ĐÈN KÉO QUÂN 3D</h1>
+
+    <p>
+        Trần Phước Điều - 231A290074
+    </p>
+
+    <!-- Đèn kéo quân -->
+    <div class="scene">
+        <div class="lantern" id="den">
+
+            <div class="face">
+                <img alt="Ảnh của bạn 1">
+            </div>
+
+            <div class="face">
+                <img alt="Ảnh của bạn 2">
+            </div>
+
+            <div class="face">
+                <img alt="Ảnh của bạn 3">
+            </div>
+
+            <div class="face">
+                <img alt="Ảnh của bạn 4">
+            </div>
+
+            <div class="face">
+                <img alt="Ảnh của bạn 5">
+            </div>
+
+            <div class="face">
+                <img alt="Ảnh của bạn 6">
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Các nút điều khiển -->
+    <div class="controls">
+
+        <label class="upload">
+            📷 Chọn 6 ảnh của bạn
+            <input
+                type="file"
+                id="files"
+                accept="image/*"
+                multiple
+            >
+        </label>
+
+        <button id="toggle">
+            ⏸ Tạm dừng
+        </button>
+
+        <button id="speed">
+            ⚡ Đổi tốc độ
+        </button>
+
+    </div>
+
+    <p class="note">
+        Trang web hoạt động bằng một file HTML duy nhất,
+        không cần Internet. Ảnh minh họa ban đầu được tạo sẵn;
+        hãy chọn đúng 6 ảnh do bạn chụp để thay thế.
+        Ảnh được chọn chỉ hiển thị trong phiên mở trang hiện tại.
+    </p>
+
+    <script>
+        // JavaScript đặt ở phần 2 bên dưới
+        
+// Lấy phần tử đèn và danh sách hình ảnh
+const den = document.getElementById('den');
+
+const imgs = [
+    ...document.querySelectorAll('.face img')
+];
+
+// Tạo ảnh minh họa ban đầu
+const colors = [
+    '#ed9979',
+    '#f0c977',
+    '#83c6c2',
+    '#92a5dc',
+    '#ce9bcf',
+    '#a8c988'
+];
+
+imgs.forEach((img, i) => {
+
+    const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg"
+             width="360" height="470"
+             viewBox="0 0 360 470">
+
+            <defs>
+                <linearGradient id="g" x2="0" y2="1">
+                    <stop stop-color="${colors[i]}"/>
+                    <stop offset="1" stop-color="#29364d"/>
+                </linearGradient>
+            </defs>
+
+            <rect width="360" height="470" fill="url(#g)"/>
+
+            <circle
+                cx="270"
+                cy="100"
+                r="45"
+                fill="#fff3cc"
+                opacity=".85"
+            />
+
+            <path
+                d="M0 300 L95 160 L180 290 L260 200
+                   L360 315 V470 H0Z"
+                fill="#273d53"
+                opacity=".75"
+            />
+
+            <path
+                d="M0 355 L110 280 L230 375 L310 300
+                   L360 335 V470 H0Z"
+                fill="#182b40"
+            />
+
+            <text
+                x="180"
+                y="430"
+                fill="white"
+                font-family="Arial"
+                font-size="26"
+                text-anchor="middle">
+                ẢNH ${i + 1}
+            </text>
+
+        </svg>
+    `;
+
+    img.src = 'data:image/svg+xml;charset=utf-8,'
+        + encodeURIComponent(svg);
+
+});
+
+// Biến kiểm tra trạng thái dừng
+let isPaused = false;
+
+// Đưa chuột vào thì dừng
+den.addEventListener('mouseenter', () => {
+    den.style.animationPlayState = 'paused';
+});
+
+// Đưa chuột ra thì quay tiếp
+den.addEventListener('mouseleave', () => {
+    den.style.animationPlayState = isPaused
+        ? 'paused'
+        : 'running';
+});
+
+// Nút tạm dừng và tiếp tục
+document.getElementById('toggle').addEventListener(
+    'click',
+    function () {
+
+        isPaused = !isPaused;
+
+        den.style.animationPlayState = isPaused
+            ? 'paused'
+            : 'running';
+
+        this.textContent = isPaused
+            ? ' Tiếp tục'
+            : ' Tạm dừng';
+    }
+);
+
+
+// Chọn 6 ảnh từ máy tính
+document.getElementById('files').addEventListener(
+    'change',
+    function () {
+
+        const files = [...this.files];
+
+        if (files.length !== 6) {
+            alert('Vui lòng chọn đúng 6 hình ảnh!');
+            return;
+        }
+
+        imgs.forEach((img, i) => {
+            img.src = URL.createObjectURL(files[i]);
+            img.alt = files[i].name;
+        });
+
+    }
+);
+
+    </script>
+
+</body>
+</html>
